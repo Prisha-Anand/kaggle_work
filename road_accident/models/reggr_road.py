@@ -4,7 +4,8 @@ from sklearn.svm import LinearSVR,SVR
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import SGDRegressor
+import shap
+import optuna
 df = pd.read_csv("road_accident/test/train.csv")
 #print(df.dtypes)
 label=LabelEncoder()
@@ -22,11 +23,36 @@ X=StandardScaler().fit_transform(X)
 
 #note: rf gave me 0.0005 as mse which is better which proves that the data is non linear in nature and hence rf is better suited since it branches on diff thresholds at each level
 #rd not that much affected by multicollinearity since it splits and doesnt learn weights like sgd or svr
-model= RandomForestRegressor(n_estimators=100)
-model.fit(X,Y)  
 
-#training
-df = pd.read_csv("road_accident/test/test(2).csv")
+ #tried shap but too slow and moreover it only tells me which feature is imp etc, not the hyperparameter
+def objective(trial):
+    n_estimators = trial.suggest_int('n_estimators', 50, 300)
+    max_depth = trial.suggest_int('max_depth', 5, 30)
+    min_samples_split = trial.suggest_int('min_samples_split', 2, 10)
+    min_samples_leaf = trial.suggest_int('min_samples_leaf', 1, 5)
+
+    rf = RandomForestRegressor(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        random_state=42
+    )
+
+    rf.fit(X[:10000], Y[:10000])
+    preds = rf.predict(X[:10000])
+    mse = mean_squared_error(Y[:10000], preds)
+    return mse
+
+study=optuna.create_study(direction='minimize',study_name='rf')
+study.optimize(func=objective,n_trials=100)
+print(study.best_params)
+print(study.best_value)
+param=study.best_params
+model= RandomForestRegressor(**param)
+model.fit(X,Y)  
+#testing
+df = pd.read_csv("road_accident/test/test (2).csv")
 #print(df.dtypes)
 label=LabelEncoder()
 for i in df.dtypes.keys() :
