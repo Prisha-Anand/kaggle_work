@@ -26,7 +26,7 @@ X=StandardScaler().fit_transform(X)
 
  #tried shap but too slow and moreover it only tells me which feature is imp etc, not the hyperparameter
 def objective(trial):
-    n_estimators = trial.suggest_int('n_estimators', 50, 300)
+    n_estimators = trial.suggest_int('n_estimators', 50, 150)
     max_depth = trial.suggest_int('max_depth', 5, 30)
     min_samples_split = trial.suggest_int('min_samples_split', 2, 10)
     min_samples_leaf = trial.suggest_int('min_samples_leaf', 1, 5)
@@ -39,13 +39,13 @@ def objective(trial):
         random_state=42
     )
 
-    rf.fit(X[:10000], Y[:10000])
-    preds = rf.predict(X[:10000])
-    mse = mean_squared_error(Y[:10000], preds)
+    rf.fit(X, Y)
+    preds = rf.predict(X)
+    mse = mean_squared_error(Y, preds)
     return mse
 
 study=optuna.create_study(direction='minimize',study_name='rf')
-study.optimize(func=objective,n_trials=100)
+study.optimize(func=objective,n_trials=1)
 print(study.best_params)
 print(study.best_value)
 param=study.best_params
