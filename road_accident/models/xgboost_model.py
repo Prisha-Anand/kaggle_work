@@ -66,3 +66,4 @@ pred=model.predict(X)
 
 output=pd.DataFrame({'id':id,'accident_risk':pred})
 output.to_csv('road_accident/outputs/submission_xgb.csv',index=False)
+#gives me 0.05559 on leaderboard which is better than previous models
