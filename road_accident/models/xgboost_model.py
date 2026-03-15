@@ -4,7 +4,7 @@ from sklearn.svm import LinearSVR,SVR
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from xgboost import XGBRegressor
-import shap
+
 import optuna
 df = pd.read_csv("road_accident/test/train.csv")
 #print(df.dtypes)

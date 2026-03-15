@@ -4,7 +4,6 @@ from sklearn.svm import LinearSVR,SVR
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
-import shap
 import optuna
 df = pd.read_csv("road_accident/test/train.csv")
 #print(df.dtypes)
